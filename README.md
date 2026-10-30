@@ -139,14 +139,13 @@ ros2 launch my_robot_nodes square.launch.py side_length:=0.8
 
 ---
 
-## Required Submission Artifacts
+## Screenshots
 
-### 1. RViz Depth Camera & Point Cloud (Step 1)
-![RViz Depth Camera and Point Cloud](docs/screenshots/rviz_depth_camera_pointcloud.png)
+### RViz (Depth camera & point cloud)
+![RViz](docs/screenshots/rviz.png)
 
-### 2. Gazebo Simulation World
-![Gazebo Simulation World](docs/screenshots/gazebo_simulation_world.png)
+### Gazebo (Obstacles world)
+![Gazebo](docs/screenshots/gazebo.png)
 
-### 3. rqt_graph during Square Driving (Step 7)
-Run `ros2 run rqt_graph rqt_graph` while `square.launch.py` is executing:
-![rqt_graph](docs/screenshots/rqt_graph_square.png)
+### rqt_graph (Node & topic graph)
+![rqt_graph](docs/screenshots/rqt_graph.png)
