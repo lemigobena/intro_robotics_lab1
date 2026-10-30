@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-"""Action client that drives the robot around a square."""
-
 import math
 import threading
+import time
 
 import rclpy
 from action_msgs.msg import GoalStatus
@@ -35,6 +33,8 @@ class SquareDriver(Node):
         self.drive_client.wait_for_server()
         self.get_logger().info("Waiting for /rotate action server...")
         self.rotate_client.wait_for_server()
+        # Allow simulation odometry and clock to settle
+        time.sleep(2.0)
 
         self.get_logger().info(f"Starting square trajectory with side length {side_length:.2f} m")
 
