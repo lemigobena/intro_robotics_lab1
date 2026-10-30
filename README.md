@@ -119,10 +119,30 @@ ros2 launch my_robot_nodes square.launch.py side_length:=0.8
 
 ---
 
+## What Did Not Work and Why (Technical Reflection)
+
+1. **Yaw Angle Discontinuity at $\pm\pi$**:
+   - *Problem*: In `rotate_server`, calculating total rotation by directly subtracting the starting yaw from the current yaw (`current_yaw - start_yaw`) failed whenever the robot rotated across the backwards boundary ($-\pi / +\pi$). At that point, the yaw reading abruptly jumps from $+3.14$ to $-3.14$ radians, causing the calculated turned angle to become wildly erroneous or negative.
+   - *Reason & Solution*: Angles are circular ($S^1$). To correctly measure continuous rotation regardless of heading, we calculate the incremental difference between consecutive odometry callbacks using `math.atan2(math.sin(target - current), math.cos(target - current))` and accumulate small $\Delta\text{yaw}$ increments.
+
+2. **Single-Threaded Executor Blocking in Action Servers & Clients**:
+   - *Problem*: In early testing, `rotate_server` or `square_driver` would hang or fail to receive `/odom` messages during execution.
+   - *Reason & Solution*: The default ROS 2 single-threaded executor runs callbacks sequentially. If the action execution loop (or waiting loop) blocks the thread, incoming odometry subscription callbacks cannot be processed. Using `MultiThreadedExecutor` and `ReentrantCallbackGroup` ensures that sensor callbacks run concurrently while the action goal is being executed.
+
+3. **Colcon Duplicate Package Conflict**:
+   - *Problem*: When `diffdrive_bot` and `lab_interfaces` were copied into `lab1_exercise`, running `colcon build` initially reported multiple packages found with identical names.
+   - *Reason & Solution*: ROS 2 workspaces cannot build two packages with the same name. Adding a `COLCON_IGNORE` file in the original `intro_robotics_intelligent_systems_labs/lab_01` folder instructs colcon to skip the baseline package and exclusively build our extended `lab1_exercise` version.
+
+4. **Gazebo Camera Info Topic Remapping**:
+   - *Problem*: The depth camera initially published its camera info on the default `/camera_info` topic rather than `/depth_camera/camera_info`.
+   - *Reason & Solution*: Gazebo sensors default their camera info topic to `/camera_info` unless explicitly overridden. Setting `<camera_info_topic>/depth_camera/camera_info</camera_info_topic>` within the `<camera>` SDF block resolved the issue, ensuring clean separation from the front RGB camera.
+
+---
+
 ## Required Submission Artifacts
 
 1. **RViz Depth Camera & Point Cloud**:
-   - `docs/screenshots/rviz_depth_camera_pointcloud.png`
+   - Stored in `docs/screenshots/rviz_depth_camera_pointcloud.png`
 2. **rqt_graph during Square Driving**:
    - Run `rqt_graph` while `square.launch.py` is executing.
-   - `docs/screenshots/rqt_graph_square.png`
+   - Stored in `docs/screenshots/rqt_graph_square.png`
